@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NepalTrek.API.Data;
 using NepalTrek.API.Models.Domain;
+using NepalTrek.API.Models.DTO;
 
 namespace NepalTrek.API.Controllers
 {
@@ -19,9 +20,23 @@ namespace NepalTrek.API.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var regions = dbContext.Regions.ToList();
+            // Get Data From Database - Domain models
+            var regionsDomain = dbContext.Regions.ToList();
 
-            return Ok(regions);
+            //Map Domain Models to DTOs
+            var regionsDto = new List<RegionDto>();
+            foreach(var regionDomain in regionsDomain)
+            {
+                regionsDto.Add(new RegionDto()
+                {
+                    Id = regionDomain.Id,
+                    Code = regionDomain.Code,
+                    Name = regionDomain.Name,
+                    RegionImageUrl = regionDomain.RegionImageUrl,
+                });
+            }
+            // Return DTOs
+            return Ok(regionsDto);
         }
 
         [HttpGet]
@@ -29,13 +44,22 @@ namespace NepalTrek.API.Controllers
         public IActionResult GetById([FromRoute]Guid id)
         {
             //var region = dbContext.Regions.Find(id);
-            var region = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var regionDomain = dbContext.Regions.FirstOrDefault(x => x.Id == id);
 
-            if (region == null)
+            if (regionDomain == null)
             {
                 return NotFound();
             }
-            return Ok(region);
-        }
+
+            var regionDto = new RegionDto()
+            {
+                Id = regionDomain.Id,
+                Code = regionDomain.Code,
+                Name = regionDomain.Name,
+                RegionImageUrl = regionDomain.RegionImageUrl,
+            };
+
+            return Ok(regionDto);
+        }       
     }
 }
