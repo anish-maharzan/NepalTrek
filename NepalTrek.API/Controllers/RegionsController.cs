@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NepalTrek.API.Data;
 using NepalTrek.API.Models.Domain;
 
 namespace NepalTrek.API.Controllers
@@ -8,27 +9,33 @@ namespace NepalTrek.API.Controllers
     [ApiController]
     public class RegionsController : ControllerBase
     {
+        private readonly NepalTrekDbContext dbContext;
+
+        public RegionsController(NepalTrekDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
+
         [HttpGet]
         public IActionResult GetAll()
         {
-            var regions = new List<Region> {
-                new Region
-                {
-                    Id = Guid.NewGuid(),
-                    Name="Annapurna Region",
-                    Code="ABC",
-                    RegionImageUrl="https://www.marveladventure.com/uploads/editors/Annapurna-Base-Camp-Trek-in-January-and-February-1.jpg"
-                },
-                 new Region
-                {
-                    Id = Guid.NewGuid(),
-                    Name="Langtang Region",
-                    Code="LAN",
-                    RegionImageUrl="https://www.magicalsummits.com/wp-content/uploads/2023/02/Langtang-Valley-Trek-1.jpg"
-                },
-            };
+            var regions = dbContext.Regions.ToList();
 
             return Ok(regions);
+        }
+
+        [HttpGet]
+        [Route("{id:Guid}")]
+        public IActionResult GetById([FromRoute]Guid id)
+        {
+            //var region = dbContext.Regions.Find(id);
+            var region = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+
+            if (region == null)
+            {
+                return NotFound();
+            }
+            return Ok(region);
         }
     }
 }
