@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NepalTrek.API.Data;
+using NepalTrek.API.Mappings;
+using NepalTrek.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<NepalTrekDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("NepalTrekConnectionString")));
+
+builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 var app = builder.Build();
 
