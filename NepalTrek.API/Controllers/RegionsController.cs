@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NepalTrek.API.Data;
 using NepalTrek.API.Models.Domain;
 using NepalTrek.API.Models.DTO;
@@ -18,10 +19,10 @@ namespace NepalTrek.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             // Get Data From Database - Domain models
-            var regionsDomain = dbContext.Regions.ToList();
+            var regionsDomain = await dbContext.Regions.ToListAsync();
 
             //Map Domain Models to DTOs
             var regionsDto = new List<RegionDto>();
@@ -41,10 +42,10 @@ namespace NepalTrek.API.Controllers
 
         [HttpGet]
         [Route("{id:Guid}")]
-        public IActionResult GetById([FromRoute] Guid id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             //var region = dbContext.Regions.Find(id);
-            var regionDomain = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var regionDomain =await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
 
             if (regionDomain == null)
             {
@@ -64,7 +65,7 @@ namespace NepalTrek.API.Controllers
 
         //POST: Create New Region
         [HttpPost]
-        public IActionResult Create([FromBody] AddRegionRequestDto dto)
+        public async Task<IActionResult> CreateAsync([FromBody] AddRegionRequestDto dto)
         {
             // Map or convert DTO to Domain Model
             var regionDomain = new Region()
@@ -75,8 +76,8 @@ namespace NepalTrek.API.Controllers
             };
 
             // Use Domain Model to Create Region
-            dbContext.Regions.Add(regionDomain);
-            dbContext.SaveChanges();
+            await dbContext.Regions.AddAsync(regionDomain);
+            await dbContext.SaveChangesAsync();
 
             // Map Domain model back to DTO
             var regionDto = new RegionDto()
@@ -87,16 +88,16 @@ namespace NepalTrek.API.Controllers
                 RegionImageUrl = regionDomain.RegionImageUrl,
             };
 
-            return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = regionDto.Id }, regionDto);
         }
 
         // PUT: Update Region
         [HttpPut]
         [Route("{id:Guid}")]
-        public IActionResult Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto dto)
+        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto dto)
         {
             // check if region exists
-            var regionDomain = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var regionDomain = await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
             if (regionDomain == null)
             {
                 return NotFound();
@@ -108,7 +109,7 @@ namespace NepalTrek.API.Controllers
             regionDomain.RegionImageUrl = dto.RegionImageUrl;
 
             // since dbcontext already tracking
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
 
             // Convert domain model to DTO
             var regionDto = new RegionDto()
@@ -124,15 +125,15 @@ namespace NepalTrek.API.Controllers
         // DELETE: Delete Region
         [HttpDelete]
         [Route("{id:Guid}")]
-        public IActionResult Delete([FromRoute] Guid id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
-            var regionDomain = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var regionDomain = await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
             if (regionDomain == null)
             {
                 return NotFound();
             }
             dbContext.Regions.Remove(regionDomain);
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
 
             //optional: return the deleted region back or no data back
             var regionDto = new RegionDto()
