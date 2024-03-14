@@ -42,7 +42,58 @@ namespace NepalTrek.API.Controllers
             var walksDomainModel = await walkRepository.GetAllAsync();
 
             var walksDto = mapper.Map<List<WalkDto>>(walksDomainModel);
+
             return Ok(walksDto);
+        }
+
+        // Get Walk by id
+        // GET: /api/Walks/{id}
+        [HttpGet]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        {
+            var walkDomainModel = await walkRepository.GetByIdAsync(id);
+
+            if (walkDomainModel == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(mapper.Map<WalkDto>(walkDomainModel));
+        }
+
+        // Update Walk by id
+        //PUT: /api/Walks/{id}
+        [HttpPut]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWalkRequestDto updateWalkRequestDto)
+        {
+            var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
+
+            walkDomainModel = await walkRepository.UpdateAsync(id, walkDomainModel);
+
+            if (walkDomainModel == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(mapper.Map<WalkDto>(walkDomainModel));
+        }
+
+        // Delete walk by Id
+        // DELETE: /api/Walks/{id}
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var deletedWalkDomainModel = await walkRepository.DeleteAsync(id);
+
+            if (deletedWalkDomainModel == null) {
+
+                return NotFound();
+            }
+
+            return Ok(mapper.Map<WalkDto>(deletedWalkDomainModel));
         }
     }
 }
