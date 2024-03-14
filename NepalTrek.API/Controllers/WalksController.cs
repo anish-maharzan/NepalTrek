@@ -25,13 +25,20 @@ namespace NepalTrek.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto)
         {
-            var walkDomainModel = mapper.Map<Walk>(addWalkRequestDto);
+            if (ModelState.IsValid)
+            {
+                var walkDomainModel = mapper.Map<Walk>(addWalkRequestDto);
 
-            walkDomainModel = await walkRepository.CreateAsync(walkDomainModel);
+                walkDomainModel = await walkRepository.CreateAsync(walkDomainModel);
 
-            var walkDto = mapper.Map<WalkDto>(walkDomainModel);
+                var walkDto = mapper.Map<WalkDto>(walkDomainModel);
 
-            return Ok(walkDto);
+                return Ok(walkDto);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         // Get All Walks
@@ -68,16 +75,23 @@ namespace NepalTrek.API.Controllers
         [Route("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWalkRequestDto updateWalkRequestDto)
         {
-            var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
-
-            walkDomainModel = await walkRepository.UpdateAsync(id, walkDomainModel);
-
-            if (walkDomainModel == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
-            }
+                var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
 
-            return Ok(mapper.Map<WalkDto>(walkDomainModel));
+                walkDomainModel = await walkRepository.UpdateAsync(id, walkDomainModel);
+
+                if (walkDomainModel == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(mapper.Map<WalkDto>(walkDomainModel));
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         // Delete walk by Id

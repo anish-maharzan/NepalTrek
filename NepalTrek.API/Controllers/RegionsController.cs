@@ -55,6 +55,9 @@ namespace NepalTrek.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDto dto)
         {
+            if (ModelState.IsValid)
+            {
+
             // Map or convert DTO to Domain Model
             var regionDomain = mapper.Map<Region>(dto);
 
@@ -65,6 +68,11 @@ namespace NepalTrek.API.Controllers
             var regionDto = mapper.Map<RegionDto>(regionDomain);
 
             return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         // PUT: Update Region
@@ -72,19 +80,26 @@ namespace NepalTrek.API.Controllers
         [Route("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto dto)
         {
-            var regionDomain = mapper.Map<Region>(dto);
-
-            regionDomain = await regionRepository.UpdateAsync(id, regionDomain);
-            
-            if (regionDomain == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                var regionDomain = mapper.Map<Region>(dto);
+
+                regionDomain = await regionRepository.UpdateAsync(id, regionDomain);
+
+                if (regionDomain == null)
+                {
+                    return NotFound();
+                }
+
+                // Convert domain model to DTO
+                var regionDto = mapper.Map<RegionDto>(regionDomain);
+
+                return Ok(regionDto);
             }
-
-            // Convert domain model to DTO
-            var regionDto = mapper.Map<RegionDto>(regionDomain);
-
-            return Ok(regionDto);
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         // DELETE: Delete Region
