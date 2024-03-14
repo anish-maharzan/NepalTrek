@@ -16,6 +16,7 @@ builder.Services.AddDbContext<NepalTrekDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("NepalTrekConnectionString")));
 
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
+builder.Services.AddScoped<IWalkRepository, SQLWalkRepository>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 var app = builder.Build();
