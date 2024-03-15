@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NepalTrek.API.CustomActionFilters;
 using NepalTrek.API.Models.Domain;
 using NepalTrek.API.Models.DTO;
 using NepalTrek.API.Repositories;
@@ -23,22 +24,16 @@ namespace NepalTrek.API.Controllers
         // Create Walk
         // POST: /api/walks
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto)
         {
-            if (ModelState.IsValid)
-            {
-                var walkDomainModel = mapper.Map<Walk>(addWalkRequestDto);
+            var walkDomainModel = mapper.Map<Walk>(addWalkRequestDto);
 
-                walkDomainModel = await walkRepository.CreateAsync(walkDomainModel);
+            walkDomainModel = await walkRepository.CreateAsync(walkDomainModel);
 
-                var walkDto = mapper.Map<WalkDto>(walkDomainModel);
+            var walkDto = mapper.Map<WalkDto>(walkDomainModel);
 
-                return Ok(walkDto);
-            }
-            else
-            {
-                return BadRequest(ModelState);
-            }
+            return Ok(walkDto);
         }
 
         // Get All Walks
@@ -73,25 +68,19 @@ namespace NepalTrek.API.Controllers
         //PUT: /api/Walks/{id}
         [HttpPut]
         [Route("{id:Guid}")]
+        [ValidateModel]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWalkRequestDto updateWalkRequestDto)
         {
-            if (ModelState.IsValid)
+            var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
+
+            walkDomainModel = await walkRepository.UpdateAsync(id, walkDomainModel);
+
+            if (walkDomainModel == null)
             {
-                var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
-
-                walkDomainModel = await walkRepository.UpdateAsync(id, walkDomainModel);
-
-                if (walkDomainModel == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(mapper.Map<WalkDto>(walkDomainModel));
+                return NotFound();
             }
-            else
-            {
-                return BadRequest(ModelState);
-            }
+
+            return Ok(mapper.Map<WalkDto>(walkDomainModel));
         }
 
         // Delete walk by Id
@@ -102,7 +91,8 @@ namespace NepalTrek.API.Controllers
         {
             var deletedWalkDomainModel = await walkRepository.DeleteAsync(id);
 
-            if (deletedWalkDomainModel == null) {
+            if (deletedWalkDomainModel == null)
+            {
 
                 return NotFound();
             }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NepalTrek.API.CustomActionFilters;
 using NepalTrek.API.Data;
 using NepalTrek.API.Models.Domain;
 using NepalTrek.API.Models.DTO;
@@ -53,11 +54,9 @@ namespace NepalTrek.API.Controllers
 
         // POST: Create New Region
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDto dto)
         {
-            if (ModelState.IsValid)
-            {
-
             // Map or convert DTO to Domain Model
             var regionDomain = mapper.Map<Region>(dto);
 
@@ -68,38 +67,27 @@ namespace NepalTrek.API.Controllers
             var regionDto = mapper.Map<RegionDto>(regionDomain);
 
             return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
-            }
-            else
-            {
-                return BadRequest(ModelState);
-            }
         }
 
         // PUT: Update Region
         [HttpPut]
         [Route("{id:Guid}")]
+        [ValidateModel]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto dto)
         {
-            if (ModelState.IsValid)
+            var regionDomain = mapper.Map<Region>(dto);
+
+            regionDomain = await regionRepository.UpdateAsync(id, regionDomain);
+
+            if (regionDomain == null)
             {
-                var regionDomain = mapper.Map<Region>(dto);
-
-                regionDomain = await regionRepository.UpdateAsync(id, regionDomain);
-
-                if (regionDomain == null)
-                {
-                    return NotFound();
-                }
-
-                // Convert domain model to DTO
-                var regionDto = mapper.Map<RegionDto>(regionDomain);
-
-                return Ok(regionDto);
+                return NotFound();
             }
-            else
-            {
-                return BadRequest(ModelState);
-            }
+
+            // Convert domain model to DTO
+            var regionDto = mapper.Map<RegionDto>(regionDomain);
+
+            return Ok(regionDto);
         }
 
         // DELETE: Delete Region
