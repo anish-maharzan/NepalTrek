@@ -18,6 +18,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<NepalTrekDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("NepalTrekConnectionString")));
 
+builder.Services.AddDbContext<NepalTrekAuthDbContext>(options =>
+options.UseSqlServer(builder.Configuration.GetConnectionString("NepalTrekAuthConnectionString")));
+
+
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
 builder.Services.AddScoped<IWalkRepository, SQLWalkRepository>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

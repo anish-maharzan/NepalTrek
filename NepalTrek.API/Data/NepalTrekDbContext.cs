@@ -5,7 +5,7 @@ namespace NepalTrek.API.Data
 {
     public class NepalTrekDbContext : DbContext
     {
-        public NepalTrekDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
+        public NepalTrekDbContext(DbContextOptions<NepalTrekDbContext> dbContextOptions) : base(dbContextOptions)
         {
 
         }
