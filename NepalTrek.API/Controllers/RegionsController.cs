@@ -8,6 +8,7 @@ using NepalTrek.API.Data;
 using NepalTrek.API.Models.Domain;
 using NepalTrek.API.Models.DTO;
 using NepalTrek.API.Repositories;
+using System.Text.Json;
 
 namespace NepalTrek.API.Controllers
 {
@@ -18,21 +19,28 @@ namespace NepalTrek.API.Controllers
         private readonly NepalTrekDbContext dbContext;
         private readonly IRegionRepository regionRepository;
         private readonly IMapper mapper;
+        private readonly ILogger<RegionsController> logger;
 
-        public RegionsController(NepalTrekDbContext dbContext, IRegionRepository regionRepository, IMapper mapper)
+        public RegionsController(NepalTrekDbContext dbContext, 
+            IRegionRepository regionRepository, 
+            IMapper mapper,
+            ILogger<RegionsController> logger)
         {
             this.dbContext = dbContext;
             this.regionRepository = regionRepository;
             this.mapper = mapper;
+            this.logger = logger;
         }
 
         [HttpGet]
-        [Authorize(Roles ="Reader")]
+        //[Authorize(Roles ="Reader")]
         public async Task<IActionResult> GetAll()
         {
+            logger.LogInformation("GetAllRegions Action Method was invoked");
             // Get Data From Database - Domain models
             var regionsDomain = await regionRepository.GetAllAsync();
 
+            logger.LogInformation($"Finished GetAllRegions request with data: {JsonSerializer.Serialize(regionsDomain)}");
             // Return DTOs
             return Ok(mapper.Map<List<RegionDto>>(regionsDomain));
         }

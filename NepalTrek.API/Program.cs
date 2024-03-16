@@ -7,11 +7,20 @@ using Microsoft.OpenApi.Models;
 using NepalTrek.API.Data;
 using NepalTrek.API.Mappings;
 using NepalTrek.API.Repositories;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+var logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .MinimumLevel.Information()
+    .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
