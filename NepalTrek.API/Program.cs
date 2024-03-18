@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NepalTrek.API.Data;
 using NepalTrek.API.Mappings;
+using NepalTrek.API.Middlewares;
 using NepalTrek.API.Repositories;
 using Serilog;
 using System.Text;
@@ -106,6 +107,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 

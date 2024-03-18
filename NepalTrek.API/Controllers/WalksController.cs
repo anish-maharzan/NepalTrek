@@ -45,6 +45,9 @@ namespace NepalTrek.API.Controllers
         {
             var walksDomainModel = await walkRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending ?? true, pageNumber, pageSize);
 
+            // Create an exception
+            throw new Exception("This a new exception");
+
             var walksDto = mapper.Map<List<WalkDto>>(walksDomainModel);
 
             return Ok(walksDto);
