@@ -12,8 +12,10 @@ using System.Text.Json;
 
 namespace NepalTrek.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     public class RegionsController : ControllerBase
     {
         private readonly NepalTrekDbContext dbContext;
@@ -32,9 +34,10 @@ namespace NepalTrek.API.Controllers
             this.logger = logger;
         }
 
+        [MapToApiVersion("1.0")]
         [HttpGet]
         //[Authorize(Roles ="Reader")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllV1()
         {
             logger.LogInformation("GetAllRegions Action Method was invoked");
             // Get Data From Database - Domain models
@@ -42,7 +45,21 @@ namespace NepalTrek.API.Controllers
 
             logger.LogInformation($"Finished GetAllRegions request with data: {JsonSerializer.Serialize(regionsDomain)}");
             // Return DTOs
-            return Ok(mapper.Map<List<RegionDto>>(regionsDomain));
+            return Ok(mapper.Map<List<RegionDtoV1>>(regionsDomain));
+        }
+
+        [MapToApiVersion("2.0")]
+        [HttpGet]
+        //[Authorize(Roles ="Reader")]
+        public async Task<IActionResult> GetAllV2()
+        {
+            logger.LogInformation("GetAllRegions Action Method was invoked");
+            // Get Data From Database - Domain models
+            var regionsDomain = await regionRepository.GetAllAsync();
+
+            logger.LogInformation($"Finished GetAllRegions request with data: {JsonSerializer.Serialize(regionsDomain)}");
+            // Return DTOs
+            return Ok(mapper.Map<List<RegionDtoV2>>(regionsDomain));
         }
 
         [HttpGet]
@@ -58,7 +75,7 @@ namespace NepalTrek.API.Controllers
                 return NotFound();
             }
 
-            var regionDto = mapper.Map<RegionDto>(regionDomain);
+            var regionDto = mapper.Map<RegionDtoV1>(regionDomain);
 
             return Ok(regionDto);
         }
@@ -76,7 +93,7 @@ namespace NepalTrek.API.Controllers
             regionDomain = await regionRepository.CreateAsync(regionDomain);
 
             // Map Domain model back to DTO
-            var regionDto = mapper.Map<RegionDto>(regionDomain);
+            var regionDto = mapper.Map<RegionDtoV1>(regionDomain);
 
             return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
         }
@@ -98,7 +115,7 @@ namespace NepalTrek.API.Controllers
             }
 
             // Convert domain model to DTO
-            var regionDto = mapper.Map<RegionDto>(regionDomain);
+            var regionDto = mapper.Map<RegionDtoV1>(regionDomain);
 
             return Ok(regionDto);
         }
@@ -117,7 +134,7 @@ namespace NepalTrek.API.Controllers
             }
 
             //optional: return the deleted region back or no data back
-            var regionDto = mapper.Map<RegionDto>(regionDomain);
+            var regionDto = mapper.Map<RegionDtoV1>(regionDomain);
 
             return Ok(regionDto);
         }

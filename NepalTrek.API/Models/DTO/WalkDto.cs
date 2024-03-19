@@ -8,7 +8,7 @@
         public double LengthInKm { get; set; }
         public string? WalkImageUrl { get; set; }
 
-        public RegionDto Region { get; set; }
+        public RegionDtoV1 Region { get; set; }
         public DifficultyDto Difficulty { get; set; }
     }
 }
